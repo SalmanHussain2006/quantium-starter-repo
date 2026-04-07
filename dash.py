@@ -2,13 +2,9 @@ import pandas as pd
 from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
 
-# Load data
 df = pd.read_csv("output.csv")
-
-# Convert date column
 df["Date"] = pd.to_datetime(df["Date"])
 
-# Create Dash app
 app = Dash(__name__)
 app.title = "Soul Foods Dashboard"
 
@@ -18,7 +14,12 @@ app.layout = html.Div(
         html.Div(
             className="card",
             children=[
-                html.H1("Soul Foods Pink Morsel Sales", className="title"),
+                html.H1(
+                    "Soul Foods Pink Morsel Sales",
+                    id="app-header",
+                    className="title"
+                ),
+
                 html.P(
                     "Track sales over time and filter by region to compare performance before and after the price increase on 15 January 2021.",
                     className="subtitle",
@@ -29,7 +30,7 @@ app.layout = html.Div(
                     children=[
                         html.Label("Select Region", className="radio-label"),
                         dcc.RadioItems(
-                            id="region-radio",
+                            id="region-picker",
                             options=[
                                 {"label": "All", "value": "all"},
                                 {"label": "North", "value": "north"},
@@ -51,10 +52,9 @@ app.layout = html.Div(
     ],
 )
 
-
 @app.callback(
     Output("sales-chart", "figure"),
-    Input("region-radio", "value")
+    Input("region-picker", "value")
 )
 def update_chart(selected_region):
     if selected_region == "all":
@@ -90,12 +90,12 @@ def update_chart(selected_region):
     )
 
     fig.update_traces(line=dict(width=3))
-
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(showgrid=True, gridcolor="#E5E7EB")
 
     return fig
 
+server = app.server
 
 if __name__ == "__main__":
     app.run(debug=True)
